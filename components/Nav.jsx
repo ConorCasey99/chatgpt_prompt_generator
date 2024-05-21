@@ -4,11 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {useState, useEffect} from 'react';
 import { signIn, signOut, useSession, getProviders} from 'next-auth/react'
+import { Button } from '@mui/base';
 
 const Nav = () => {
   const isUserLoggedIn = true
 
   const [providers, setProviders ] = useState(null);
+
+  const [toggleDropdown, settoggleDropdown] = useState(false)
 
   useEffect(() => {
     const setProviders = async () => {
@@ -47,7 +50,7 @@ const Nav = () => {
 
             <Link href="/profile">
               <Image
-                src={"images\logo.svg"}
+                src="images\logo.svg"
                 width={37}
                 height={37}
                 className="rounded-full"
@@ -72,6 +75,68 @@ const Nav = () => {
               ))}
           </>
         )}
+
+        {/* Mobile Nav*/}
+        <div className="sm:hidden flex relative">
+          {isUserLoggedIn ? (
+            <div className="flex">
+              <Image
+                src="images\logo.svg"
+                width={37}
+                height={37}
+                className="rounded-full"
+                alt="profile"
+                onClick={() => settoggleDropdown((prev) => !prev)}
+              />
+
+              {toggleDropdown && (
+                <div className="dropdown">
+                  <Link
+                    href="/profile"
+                    className="dropdown_link"
+                    onClick={() => settoggleDropdown(false)}
+                  >
+                    My Profile
+                  </Link>
+                  <Link
+                    href="/create-prompt"
+                    className="dropdown_link"
+                    onClick={() => settoggleDropdown(false)}
+                  >
+                    Create Prompt
+                  </Link>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setProviders(false);
+                      signOut();
+                    }}
+                    className="mt-5 w-full black_btn"
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              {providers &&
+                Object.values(providers).map((provider) => (
+                  <button
+                    type="button"
+                    key={provider.name}
+                    onClick={() => {
+                      signIn(provider.id);
+                    }}
+                    className="black_btn"
+                  >
+                    Sign in
+                  </button>
+                
+                ))}
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );
